@@ -44,16 +44,16 @@ int main()
     byte_sent = sendto(sock, buffer, sizeof(buffer),
                        0, (struct sockaddr *)&address, address_length);
     if (byte_sent < 0) printf("Error sending packet\n");
+    gettimeofday(&end, NULL);   // record end time
     // receive
     byte_recv = recvfrom(sock, buffer2, sizeof(buffer),
                          0, (struct sockaddr *)&client_address, &client_address_length);
     if (byte_recv < 0) printf("Error recving packet\n");
-    gettimeofday(&end, NULL);   // record send time
     printf("%s\n", buffer2);
 
-    // send and receive time / 2
-    diff = (1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec)/2;
-    printf("the difference is %ld (ms)\n", diff);
+    // latency
+    diff = (1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec);
+    printf("The latency is %ld (ms)\n", diff);
 
     close(sock);
     return 0;

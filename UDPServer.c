@@ -32,7 +32,7 @@ int main()
 
     int address_length = sizeof(address);
     
-    // wating for client
+    // continuing up
     while (1)
     {
         // receive packet

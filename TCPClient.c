@@ -42,13 +42,13 @@ int main() {
     gettimeofday(&start, NULL);    // record send time
     byte_sent = send(sock, buffer, sizeof(buffer), 0);
     if (byte_sent < 0) printf("Error sending packet\n");
+    gettimeofday(&end, NULL);    // record end time
     recv(sock,buffer2, sizeof(buffer2), 0);
-    gettimeofday(&end, NULL);    // record receive time
     printf("%s", buffer2);
 
-    // (send&receive time) / 2
-    diff = (1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec)/2;
-    printf("the difference is %ld (ms)\n", diff);
+    // latency
+    diff = (1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec);
+    printf("The latency is %ld (ms)\n", diff);
 
     close(sock);
     return 0;
