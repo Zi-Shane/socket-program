@@ -11,9 +11,9 @@
 
 int main() {
     struct sockaddr_in server_addr, client_addr;
-    int sock, byte_recv, server_addr_length, client_addr_length, recfd;
-    server_addr_length = sizeof(server_addr);
-    client_addr_length = sizeof(client_addr);
+    int sock, byte_recv, recfd;
+    int server_addr_length = sizeof(server_addr);
+    int client_addr_length = sizeof(client_addr);
     
     char buffer[100] = "welcome\n", buffer2[100] = {};
 
@@ -40,7 +40,9 @@ int main() {
             printf("accept failed\n");
             close(sock);
         }
+
         send(recfd, buffer, sizeof(buffer), 0);
+        
         byte_recv = recv(recfd, buffer2, sizeof(buffer2), 0);
         if (byte_recv < 0) printf("Error recving packet\n");
         printf("Received packet: %s\n", buffer2);

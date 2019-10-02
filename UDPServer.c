@@ -13,13 +13,13 @@ int main()
 {
     struct sockaddr_in address, client_address;
     int sock, byte_recv, client_address_length;
-    char buffer[50];
+    int byte_sent;
+    char buffer[100], buffer2[100] = "welcome\0";
 
     // create socket
     sock = socket(PF_INET, SOCK_DGRAM, 0);
-    if (sock < 0)
-        printf("Error creating socket\n");
-    // init
+    if (sock < 0) printf("Error creating socket\n");
+    // init struct
     address.sin_family = AF_INET;
     address.sin_port = htons(PortNumber);
     address.sin_addr.s_addr = INADDR_ANY;
@@ -31,6 +31,7 @@ int main()
     }
 
     int address_length = sizeof(address);
+    
     // wating for client
     while (1)
     {
@@ -41,8 +42,7 @@ int main()
         printf("Received packet: %s\n", buffer);
 
         // response "welcome"
-        char buffer2[50] = "welcome\0";
-        int byte_sent = sendto(sock, buffer2, sizeof(buffer2),
+        byte_sent = sendto(sock, buffer2, sizeof(buffer2),
                                0, (struct sockaddr *)&client_address, client_address_length);
         if (byte_sent < 0) printf("Error sending packet\n");
     }
