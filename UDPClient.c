@@ -15,11 +15,8 @@
 int main()
 {
     struct sockaddr_in address;
-    int sock, byte_sent;
-    char buffer[100] = {};
-
-    int byte_recv, client_address, client_address_length;
-    char buffer2[100] = {};
+    int sock, byte_sent, byte_recv;
+    char buffer[100];
 
     struct timeval start;
     struct timeval end;
@@ -36,28 +33,28 @@ int main()
 
     int address_length = sizeof(address);
     
-    printf("Packet content: ");
-    scanf("%[^\n]", buffer);
+    // printf("Packet content: ");
+    // scanf("%[^\n]", buffer);
+    int len = read(STDIN_FILENO,buffer,sizeof(buffer));
 
     // send packet
     gettimeofday(&start, NULL);   // record send time
-    byte_sent = sendto(sock, buffer, sizeof(buffer),
+    byte_sent = sendto(sock, buffer, len,
                        0, (struct sockaddr *)&address, address_length);
     if (byte_sent < 0) printf("Error sending packet\n");
     gettimeofday(&end, NULL);   // record end time
     // latency
-    diff = (1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec);
+    diff = 1000000*(end.tv_sec-start.tv_sec)+end.tv_usec-start.tv_usec;
     // throughput
-    double throughput = ((double)byte_sent / diff);
-
+    printf("The latency is %ld (ms)\n", diff);
+    printf("throughput: %.4f (bps)\n", (byte_sent*8) / (double)diff * 1000);
     // receive
-    byte_recv = recvfrom(sock, buffer2, sizeof(buffer),
-                         0, (struct sockaddr *)&client_address, &client_address_length);
+    byte_recv = recvfrom(sock, buffer, sizeof(buffer),
+                         0, (struct sockaddr *)&address, &address_length);
     if (byte_recv < 0) printf("Error recving packet\n");
     
-    printf("%s\n", buffer2);
-    printf("The latency is %ld (ms)\n", diff);
-    printf("throughput: %f (byte/s)\n", throughput);
+    printf("%s\n", buffer);
+    
 
     close(sock);
     return 0;

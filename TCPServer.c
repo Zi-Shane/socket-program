@@ -15,7 +15,7 @@ int main() {
     int server_addr_length = sizeof(server_addr);
     int client_addr_length = sizeof(client_addr);
     
-    char buffer[100] = "welcome\n", buffer2[100] = {};
+    char buffer[100] = "welcome!\n", buffer2[100];
 
     sock = socket(PF_INET, SOCK_STREAM, 0);
     if (sock < 0) printf("Error creating socket\n");
@@ -40,12 +40,12 @@ int main() {
             printf("accept failed\n");
             close(sock);
         }
-
         send(recfd, buffer, sizeof(buffer), 0);
-        
+
+        bzero(&buffer2, sizeof(buffer2));
         byte_recv = recv(recfd, buffer2, sizeof(buffer2), 0);
         if (byte_recv < 0) printf("Error recving packet\n");
-        printf("Received packet: %s\n", buffer2);
+        printf("Received packet: %s", buffer2);
     }
     return 0;
 }

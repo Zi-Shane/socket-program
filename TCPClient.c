@@ -16,14 +16,11 @@ int main() {
     struct sockaddr_in server_addr;
     int sock, byte_sent, server_addr_length = sizeof(server_addr);
 
-    char buffer[100] = {}, buffer2[100] = {};
+    char buffer[100], buffer2[100];
     
     struct timeval start;
     struct timeval end;
     unsigned long diff;
-
-    printf("input: ");
-    scanf("%[^\n]", buffer);
 
     // create socket
     sock = socket(PF_INET, SOCK_STREAM, 0);
@@ -38,21 +35,22 @@ int main() {
         printf("connect fail\n");
         close(sock);
     }
+    // printf("input: ");
+    // scanf("%[^\n]", buffer);
+    int len = read(STDIN_FILENO, buffer, sizeof(buffer));
 
     gettimeofday(&start, NULL);    // record send time
-    byte_sent = send(sock, buffer, sizeof(buffer), 0);
+    byte_sent = send(sock, buffer, len, 0);
     if (byte_sent < 0) printf("Error sending packet\n");
     gettimeofday(&end, NULL);    // record end time
     // latency
-    diff = (1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec);
-    // throughput
-    double throughput = ((double)byte_sent / diff);
+    diff = 1000000*(end.tv_sec-start.tv_sec)+end.tv_usec-start.tv_usec;
 
-    recv(sock,buffer2, sizeof(buffer2), 0);
+    recv(sock, buffer, sizeof(buffer), 0);
     
-    printf("%s", buffer2);
+    printf("%s", buffer);
     printf("The latency is %ld (ms)\n", diff);
-    printf("throughput: %f (byte/ms)\n", throughput);
+    printf("throughput: %f (bps)\n", (byte_sent*8) / (double)diff * 1000);
 
     close(sock);
     return 0;
