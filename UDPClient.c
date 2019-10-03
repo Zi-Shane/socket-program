@@ -45,15 +45,19 @@ int main()
                        0, (struct sockaddr *)&address, address_length);
     if (byte_sent < 0) printf("Error sending packet\n");
     gettimeofday(&end, NULL);   // record end time
+    // latency
+    diff = (1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec);
+    // throughput
+    double throughput = ((double)byte_sent / diff);
+
     // receive
     byte_recv = recvfrom(sock, buffer2, sizeof(buffer),
                          0, (struct sockaddr *)&client_address, &client_address_length);
     if (byte_recv < 0) printf("Error recving packet\n");
+    
     printf("%s\n", buffer2);
-
-    // latency
-    diff = (1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec);
     printf("The latency is %ld (ms)\n", diff);
+    printf("throughput: %f (byte/s)\n", throughput);
 
     close(sock);
     return 0;

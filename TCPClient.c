@@ -43,12 +43,16 @@ int main() {
     byte_sent = send(sock, buffer, sizeof(buffer), 0);
     if (byte_sent < 0) printf("Error sending packet\n");
     gettimeofday(&end, NULL);    // record end time
-    recv(sock,buffer2, sizeof(buffer2), 0);
-    printf("%s", buffer2);
-
     // latency
     diff = (1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec);
+    // throughput
+    double throughput = ((double)byte_sent / diff);
+
+    recv(sock,buffer2, sizeof(buffer2), 0);
+    
+    printf("%s", buffer2);
     printf("The latency is %ld (ms)\n", diff);
+    printf("throughput: %f (byte/ms)\n", throughput);
 
     close(sock);
     return 0;
