@@ -45,9 +45,6 @@ int main()
     gettimeofday(&end, NULL);   // record end time
     // latency
     diff = 1000000*(end.tv_sec-start.tv_sec)+end.tv_usec-start.tv_usec;
-    // throughput
-    printf("The latency is %ld (ms)\n", diff);
-    printf("throughput: %.4f (bps)\n", (byte_sent*8) / (double)diff * 1000);
     // receive
     byte_recv = recvfrom(sock, buffer, sizeof(buffer),
                          0, (struct sockaddr *)&address, &address_length);
@@ -55,6 +52,9 @@ int main()
     
     printf("%s\n", buffer);
     
+    // throughput
+    printf("The latency is %ld (ms)\n", diff);
+    printf("throughput: %.4f (Mbps)\n", (byte_sent*8)/(double)diff);
 
     close(sock);
     return 0;

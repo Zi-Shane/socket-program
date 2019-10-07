@@ -50,7 +50,7 @@ int main() {
     
     printf("%s", buffer);
     printf("The latency is %ld (ms)\n", diff);
-    printf("throughput: %f (bps)\n", (byte_sent*8) / (double)diff * 1000);
+    printf("throughput: %.4f (Mbps)\n", (byte_sent*8)/(double)diff);
 
     close(sock);
     return 0;
