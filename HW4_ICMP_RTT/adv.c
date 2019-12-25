@@ -46,9 +46,8 @@ int main(int argc, char *argv[]) {
     struct iphdr *ip_hdr_recv;
     struct icmp *icmp_hdr_recv;
     char *ptemp;
-    unsigned long diff;
-    float curRTT = 0;
-    int t1, t2, t3, t4;
+    unsigned int t1, t2, t3, t4;
+    unsigned int maxRTT = 0, minRTT = 0, TotRTT = 0, curRTT = 0;
 
     addr.sin_family = PF_INET;  // IPv4
     addr.sin_addr.s_addr = inet_addr(argv[1]);
@@ -72,8 +71,6 @@ int main(int argc, char *argv[]) {
         picmp->icmp_dun.id_ts.its_otime = (start.tv_sec % (24*60*60)) * 1000 + start.tv_usec / 1000;
         picmp->icmp_cksum = checksum((unsigned short *)buffer, sizeof(struct icmp));
 
-        
-
         // send icmp
         int s = sendto(fd, buffer, sizeof(struct icmp), 0, (struct sockaddr*)&addr, sizeof(addr));
         if (s < 1) {
@@ -90,11 +87,7 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
 
-        // t1 = icmp_hdr_recv->icmp_dun.id_ts.its_otime;
-        // t2 = icmp_hdr_recv->icmp_dun.id_ts.its_rtime;
-        // t3 = icmp_hdr_recv->icmp_dun.id_ts.its_ttime;
         gettimeofday(&end, NULL);
-        t4 = (end.tv_sec % (24*60*60)) * 1000 + end.tv_usec / 1000;
 
         ptemp = buffer;
         ip_hdr_recv = (struct iphdr *)ptemp;
@@ -103,11 +96,21 @@ int main(int argc, char *argv[]) {
         // ip_hdr_recv = (struct iphdr *)buffer;
         // icmp_hdr_recv = (struct icmp *)(buffer + (ip_hdr_recv->ihl)*4);
 
+        t1 = icmp_hdr_recv->icmp_dun.id_ts.its_otime;
+        t2 = icmp_hdr_recv->icmp_dun.id_ts.its_rtime;
+        t3 = icmp_hdr_recv->icmp_dun.id_ts.its_ttime;
+        t4 = (end.tv_sec % (24*60*60)) * 1000 + end.tv_usec / 1000;
+        curRTT = (t4 - t3) + (t2 - t1);
+        minRTT = minRTT == 0 ? curRTT : minRTT;
+        maxRTT = maxRTT < curRTT ? curRTT : maxRTT;
+        minRTT = minRTT > curRTT ? curRTT : minRTT;
+        TotRTT += curRTT;
+
         struct sockaddr_in sa;
         char ipbuf[INET_ADDRSTRLEN];
 
         printf("replyfrom = %s, icmp_type = %u, icmp_code = %u, icmp_seq = %hu\n \
-                otime = %d, rtime = %d, ttime = %d, RTT: %d\n", 
+                otime = %u, rtime = %u, ttime = %u, RTT: %u\n", 
         inet_ntop(AF_INET, &ip_hdr_recv->saddr, ipbuf, sizeof(ipbuf)), 
         icmp_hdr_recv->icmp_type, 
         icmp_hdr_recv->icmp_code, 
@@ -115,11 +118,13 @@ int main(int argc, char *argv[]) {
         icmp_hdr_recv->icmp_dun.id_ts.its_otime, 
         icmp_hdr_recv->icmp_dun.id_ts.its_rtime, 
         icmp_hdr_recv->icmp_dun.id_ts.its_ttime, 
-        (t4 - icmp_hdr_recv->icmp_dun.id_ts.its_ttime) + (icmp_hdr_recv->icmp_dun.id_ts.its_rtime - icmp_hdr_recv->icmp_dun.id_ts.its_otime)
+        curRTT
         );
 
     }
 
+    printf("\n");
+    printf("Max RTT: %ums, Min RTT: %ums, Avg RTT: %.3fms\n", maxRTT, minRTT, (float)TotRTT/10);
 
     return 0;
 }
