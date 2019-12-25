@@ -109,15 +109,15 @@ int main(int argc, char *argv[]) {
         struct sockaddr_in sa;
         char ipbuf[INET_ADDRSTRLEN];
 
-        printf("replyfrom = %s, icmp_type = %u, icmp_code = %u, icmp_seq = %hu\n \
-                otime = %u, rtime = %u, ttime = %u, RTT: %u\n", 
+        printf("replyfrom = %s, icmp_type = %u, icmp_code = %u, icmp_seq = %hu\n otime = %u, rtime = %u, ttime = %u, ftime = %u, RTT: %u\n", 
         inet_ntop(AF_INET, &ip_hdr_recv->saddr, ipbuf, sizeof(ipbuf)), 
         icmp_hdr_recv->icmp_type, 
         icmp_hdr_recv->icmp_code, 
         icmp_hdr_recv->icmp_hun.ih_idseq.icd_seq, 
-        icmp_hdr_recv->icmp_dun.id_ts.its_otime, 
-        icmp_hdr_recv->icmp_dun.id_ts.its_rtime, 
-        icmp_hdr_recv->icmp_dun.id_ts.its_ttime, 
+        t1, 
+        t2, 
+        t3, 
+        t4, 
         curRTT
         );
 
