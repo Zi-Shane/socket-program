@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
     struct icmphdr *icmp_hdr_recv;
     char *ptemp;
     unsigned long diff;
-    float maxRTT = 0, minRTT = 0, TotRTT = 0, curRTT = 0;
+    float maxRTT = 0, minRTT = -1, TotRTT = 0, curRTT = 0;
 
     addr.sin_family = PF_INET;  // IPv4
     addr.sin_addr.s_addr = inet_addr(argv[1]);
@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
         diff = 1000000*(end.tv_sec-start.tv_sec)+end.tv_usec-start.tv_usec;
         curRTT = (float)diff/1000;
         // init minRTT
-        minRTT = minRTT == 0 ? curRTT : minRTT;
+        minRTT = minRTT < 0 ? curRTT : minRTT;
 
         printf("replyfrom = %s, icmp_type = %u, icmp_code = %u, icmp_seq = %hu, RTT: %.2fms\n",
         inet_ntop(AF_INET, &ip_hdr_recv->saddr, ipbuf, sizeof(ipbuf)),

@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
     struct icmp *icmp_hdr_recv;
     char *ptemp;
     unsigned int t1, t2, t3, t4;
-    unsigned int maxRTT = 0, minRTT = 0, TotRTT = 0, curRTT = 0;
+    unsigned int maxRTT = 0, minRTT = -1, TotRTT = 0, curRTT = 0;
 
     addr.sin_family = PF_INET;  // IPv4
     addr.sin_addr.s_addr = inet_addr(argv[1]);
@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
         t3 = icmp_hdr_recv->icmp_dun.id_ts.its_ttime;
         t4 = (end.tv_sec % (24*60*60)) * 1000 + end.tv_usec / 1000;
         curRTT = (t4 - t3) + (t2 - t1);
-        minRTT = minRTT == 0 ? curRTT : minRTT;
+        minRTT = minRTT < 0 ? curRTT : minRTT;
         maxRTT = maxRTT < curRTT ? curRTT : maxRTT;
         minRTT = minRTT > curRTT ? curRTT : minRTT;
         TotRTT += curRTT;
