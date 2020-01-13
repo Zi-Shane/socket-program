@@ -61,7 +61,6 @@ int main(int argc, char *argv[]) {
 
     for (int i = 0; i < 10; i++)
     {
-        gettimeofday(&start, NULL);
         memset(buffer, 0, sizeof(buffer));
         // init icmp header
         picmp->icmp_type = ICMP_TIMESTAMP;
@@ -71,13 +70,15 @@ int main(int argc, char *argv[]) {
         picmp->icmp_dun.id_ts.its_otime = (start.tv_sec % (24*60*60)) * 1000 + start.tv_usec / 1000;
         picmp->icmp_cksum = checksum((unsigned short *)buffer, sizeof(struct icmp));
 
+        // send time
+        gettimeofday(&start, NULL);
+
         // send icmp
         int s = sendto(fd, buffer, sizeof(struct icmp), 0, (struct sockaddr*)&addr, sizeof(addr));
         if (s < 1) {
             perror("sendto");
             exit(1);
         }
-        // printf("sended an ICMP packet to %s\n", argv[1]);
 
         // reveive icmp
         memset(buffer, 0, sizeof(buffer));
@@ -87,15 +88,16 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
 
+        // receive time
         gettimeofday(&end, NULL);
 
+        // get header
         ptemp = buffer;
         ip_hdr_recv = (struct iphdr *)ptemp;
         ptemp += sizeof(struct iphdr);
         icmp_hdr_recv = (struct icmp *)ptemp;
-        // ip_hdr_recv = (struct iphdr *)buffer;
-        // icmp_hdr_recv = (struct icmp *)(buffer + (ip_hdr_recv->ihl)*4);
 
+        // cal xxxRTTs
         t1 = icmp_hdr_recv->icmp_dun.id_ts.its_otime;
         t2 = icmp_hdr_recv->icmp_dun.id_ts.its_rtime;
         t3 = icmp_hdr_recv->icmp_dun.id_ts.its_ttime;

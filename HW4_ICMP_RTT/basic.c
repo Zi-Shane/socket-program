@@ -69,6 +69,7 @@ int main(int argc, char *argv[]) {
         icmp->un.echo.sequence = i+1;
         icmp->checksum = checksum((unsigned short *)buffer, sizeof(struct icmphdr));
 
+        // send time
         gettimeofday(&start, NULL);
 
         // send icmp
@@ -77,7 +78,6 @@ int main(int argc, char *argv[]) {
             perror("sendto");
             exit(1);
         }
-        // printf("sended an ICMP packet to %s\n", argv[1]);
 
         // reveive icmp
         memset(buffer, 0, sizeof(buffer));
@@ -87,14 +87,14 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
 
+        // receive time
         gettimeofday(&end, NULL);
 
+        // get header
         ptemp = buffer;
         ip_hdr_recv = (struct iphdr *)ptemp;
         ptemp += sizeof(struct iphdr);
         icmp_hdr_recv = (struct icmphdr *)ptemp;
-        // ip_hdr_recv = (struct iphdr *)buffer;
-        // icmp_hdr_recv = (struct icmphdr *)(buffer + (ip_hdr_recv->ihl)*4);
 
         struct sockaddr_in sa;
         char ipbuf[INET_ADDRSTRLEN];
@@ -103,6 +103,7 @@ int main(int argc, char *argv[]) {
         // init minRTT
         minRTT = minRTT < 0 ? curRTT : minRTT;
 
+        // print result
         printf("replyfrom = %s, icmp_type = %u, icmp_code = %u, icmp_seq = %hu, RTT: %.2fms\n",
         inet_ntop(AF_INET, &ip_hdr_recv->saddr, ipbuf, sizeof(ipbuf)),
         icmp_hdr_recv->type,
